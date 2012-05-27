@@ -60,7 +60,7 @@ var tumblr = Tumblr ({
 
 var twitter = Twitter ({
 	consumerKey: 'RuqNilzB8cGmIG0DkN607A',
-	consumerSecret: 'cCec2ypBCVggj5gAjjId37CbuUlQC4k37HZIfXpsmU'
+	consumerSecret: 'cCec2ypBCVggj5gAjjId37CbuUlQC4k37HZIfXpsmU',
 	callbackUrl: 'http://huntforjoy.cybersoft.com.sg/'
 });
 
