@@ -48,7 +48,11 @@ exports.Twitter = (function(global) {
 		
 	    // If user hit "No, thanks" when asked to authorize access
 	    if (loc.indexOf(self.callbackUrl + "?denied") >= 0) {
-	        //$('#oauthStatus').html('<span style="color:red;">User declined access</span>');
+			self.fireEvent('login', {
+				success: false,
+				error: "User declined access.",
+				result: data
+			});
 	        self.webView.close();
 	        return;
 	    }
@@ -56,7 +60,11 @@ exports.Twitter = (function(global) {
 	    // Same as above, but user went to app's homepage instead
 	    // of back to app. Don't close the browser in this case.
 	    if (loc === self.callbackUrl) {
-	        //$('#oauthStatus').html('<span style="color:red;">User declined access</span>');
+			self.fireEvent('login', {
+				success: false,
+				error: "User declined access.",
+				result: data
+			});
 	        self.webView.close();
 	        return;
 	    }
@@ -140,7 +148,7 @@ exports.Twitter = (function(global) {
 			    function(data) {
 			      self.fireEvent('login', {
 			        success: false,
-			        error: "Failure to fetch access token, please try again.",
+			        error: "Failure to fetch request token, please try again.",
 			        result: data
 			      });
 			    }
@@ -186,9 +194,7 @@ exports.Twitter = (function(global) {
 		});
 	};
 	
-	Twitter.prototype.logout = function(callback){
-		var self = this;
-		
+	Twitter.prototype.logout = function(callback){		
 		this.oauthClient.setAccessToken('', '');
 		this.accessTokenKey = null;
 		this.accessTokenSecret = null;
