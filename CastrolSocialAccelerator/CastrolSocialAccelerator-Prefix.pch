@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'CastrolSocialAccelerator' target in the 'CastrolSocialAccelerator' project
+//
+
+#ifdef __OBJC__
+  #import <UIKit/UIKit.h>
+#endif

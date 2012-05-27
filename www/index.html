@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title></title>
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="jquery.mobile-1.1.0.min.css" />
+
+	<!-- iPad/iPhone specific css below, add after your main css >
+	<link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="ipad.css" type="text/css" />		
+	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
+	-->
+	<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
+	<script type="text/javascript" charset="utf-8" src="cordova-1.7.0.js"></script>
+	<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="jsOAuth-1.3.4.min.js"></script>
+	<script type="text/javascript" src="ChildBrowser.js"></script>
+	<script type="text/javascript" charset="utf-8">
+        window.JSON = null;
+    </script>
+    <script type="text/javascript" src="json2.js"></script>
+	<script type="text/javascript" src="lawnchair-0.6.1.min.js"></script>
+	<script type="text/javascript" src="lawnchair-adapter-gears-sqlite-0.6.1.js"></script>
+	<script type="text/javascript" src="lawnchair-adapter-indexed-db-0.6.1.js"></script>
+	<script type="text/javascript" src="lawnchair-adapter-webkit-sqlite-0.6.1.js"></script>
+	<script type="text/javascript">
+		//When jQuery Mobile starts, it triggers a mobileinit event on the document object. To override default settings, bind to mobileinit.
+		$(document).bind("mobileinit", function(){
+		  //apply overrides here
+		  $.mobile.defaultPageTransition = 'none';
+		});
+	</script>
+	<script type="text/javascript" src="jquery.mobile-1.1.0.min.js"></script>
+	<script type="text/javascript" src="twitter.js"></script>
+	<script type="text/javascript" src="tumblr.js"></script>
+	<script type="text/javascript" src="flickr.js"></script>
+	<script type="text/javascript" src="linkedin.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+	<style type="text/css">
+		.ui-header .ui-title { margin-right:20px; margin-left:20px; }
+	</style>   
+  </head>
+  <body onload="onBodyLoad()">
+	<div data-role="page" id="settings">
+	
+		<div data-role="header">
+			<h1>CastrolSocialAccelerator</h1>
+		</div><!-- /header -->
+	
+		<div data-role="content">	
+			<div data-role="controlgroup">
+				<a href="#nogo" data-role="button" id="twitterOAuth">Start Twitter OAuth</a>	
+				<a href="#nogo" data-role="button" id="tumblrOAuth">Start Tumblr OAuth</a>
+			</div>
+			<a href="#home" data-role="button" id="btNext">Next</a>
+		</div><!-- /content -->
+	
+	</div><!-- /page -->
+	
+	<div data-role="page" id="home">
+	
+		<div data-role="header">
+			<h1>CastrolSocialAccelerator</h1>
+		</div><!-- /header -->
+	
+		<div data-role="content">	
+			<div data-role="controlgroup">
+				<a href="#nogo" data-role="button" id="takePhoto">Take Photo</a>
+			</div>
+            <span id="textcount"></span>
+            <textarea id="tweettextarea" rows="2" cols="30"></textarea>
+		</div><!-- /content -->
+	
+	</div><!-- /page -->
+
+  </body>
+</html>
