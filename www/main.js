@@ -58,10 +58,27 @@ var tumblr = Tumblr ({
 	callbackUrl: 'http://huntforjoy.cybersoft.com.sg/'
 });
 
+var linkedin = Linkedin ({
+	consumerKey: 'ui6vccbhw7a8',
+	consumerSecret: 'FpJXiVIq3FsdFStp',
+	callbackUrl: 'http://huntforjoy.cybersoft.com.sg/'
+});
+
 var twitter = Twitter ({
 	consumerKey: 'RuqNilzB8cGmIG0DkN607A',
 	consumerSecret: 'cCec2ypBCVggj5gAjjId37CbuUlQC4k37HZIfXpsmU',
 	callbackUrl: 'http://huntforjoy.cybersoft.com.sg/'
+});
+
+
+var foursquare = Foursquare ({
+	clientId: 'B2GCD2L3IQ3JEFGISZQU3D4GOS10LS4ZO2IWNAEC11GBQDZE',
+	redirectUri: 'http://huntforjoy.cybersoft.com.sg/'
+});
+
+var facebook = Facebook ({
+	clientId: '450150838346325',
+	redirectUri: 'https://www.facebook.com/connect/login_success.html/'
 });
 
 /*var flickr = Flickr({
@@ -168,3 +185,22 @@ $(document).on("click", "a#takePhoto", function() {
 $(document).on("click", "a#tumblrOAuth", function() { 	
 	tumblr.authorize();
 });
+
+$(document).on("click", "a#foursqureOAuth", function() { 	
+	foursquare.authorize();
+});
+
+$(document).on("click", "a#facebookOAuth", function() { 	
+	facebook.authorize();
+});
+
+$(document).on("click", "a#mySpaceOAuth", function() { 	
+	mySpace.authorize();
+});
+
+$(document).on("click", "a#linkedinOAuth", function() { 	
+	linkedin.authorize();
+});
+
+
+

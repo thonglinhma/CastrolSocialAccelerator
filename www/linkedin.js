@@ -17,6 +17,7 @@ exports.Linkedin = (function(global) {
 	    self.consumerSecret = options.consumerSecret;
 	    self.accessTokenKey = options.accessTokenKey;
 	    self.accessTokenSecret = options.accessTokenSecret;
+	    self.authorizeUrl = 'https://www.linkedin.com/uas/oauth/authorize';
 	    self.authorized = false;
 	    self.requestParams;
 	    self.listeners = {};
@@ -27,6 +28,7 @@ exports.Linkedin = (function(global) {
 			self.webView = ChildBrowser.install();
 		}
 		
+		options.requestTokenUrl = options.requestTokenUrl || 'https://api.linkedin.com/uas/oauth/requestToken';
 	    options.callbackUrl = options.callbackUrl || "https://www.facebook.com/connect/login_success.html/";
 	    self.callbackUrl = options.callbackUrl;
 	    self.oauthClient = OAuth(options);
@@ -71,48 +73,35 @@ exports.Linkedin = (function(global) {
 	                verifier = y[1];
 	            }
 	        }
-	        
-            // Exchange request token for access token
-            oauth.get('https://api.linkedin.com/uas/oauth/accessToken?oauth_verifier='+verifier+'&'+self.requestParams,
-                    function(data) {               
-                        var accessParams = {};
-                        var qvars_tmp = data.text.split('&');
-                        for (var i = 0; i < qvars_tmp.length; i++) {
-                            var y = qvars_tmp[i].split('=');
-                            accessParams[y[0]] = decodeURIComponent(y[1]);
-                        }
-                        console.log('LinkedinLog: ' + accessParams.oauth_token + ' : ' + accessParams.oauth_token_secret);
-                        //$('#oauthStatus').html('<span style="color:green;">Success!</span>');
-                        //$('#stage-auth').hide();
-                        //$('#stage-data').show();
-                        oauth.setAccessToken([accessParams.oauth_token, accessParams.oauth_token_secret]);
-                        
-                        // Save access token/key in localStorage
-                        var accessData = {};
-                        accessData.accessTokenKey = accessParams.oauth_token;
-                        accessData.accessTokenSecret = accessParams.oauth_token_secret;
-                        console.log("LinkedinLog: Storing token key/secret in localStorage");
-                        //localStorage.setItem(localStoreKey, JSON.stringify(accessData));
-                        self.authorized = true;
-			            self.fireEvent('login', {
-			              success: true,
-			              error: false,
-			              accessTokenKey: accessParams.oauth_token,
-			              accessTokenSecret: accessParams.oauth_token_secret
-			            });                                        
-                        self.webView.close();
-                },
-                function(data) { 
-                    self.authorized = false;
-                    console.log("LinkedinLog: 1 Error " + data.text); 
-		            self.fireEvent('login', {
-		              success: false,
-		              error: data.text,
-		              result: data
-		            });
-		            self.webView.close();
-                }
-            );
+	        oauth.accessTokenUrl = 'https://api.linkedin.com/uas/oauth/accessToken?oauth_verifier=' + verifier;
+	        // Exchange request token for access token
+			oauth.fetchAccessToken(
+				function(data){
+					self.fireEvent('login', {
+						success: true,
+						error: false,
+						accessTokenKey: oauth.getAccessTokenKey(),
+						accessTokenSecret: oauth.getAccessTokenSecret()
+					});
+					console.log('LinkedinLog: ' + oauth.getAccessTokenKey() + ' : ' +oauth.getAccessTokenSecret());
+					oauth.setAccessToken([oauth.getAccessTokenKey(), oauth.getAccessTokenSecret()]);
+                    // Save access token/key in localStorage
+                    var accessData = {};
+                    accessData.accessTokenKey = oauth.getAccessTokenKey();
+                    accessData.accessTokenSecret = oauth.getAccessTokenSecret();
+                    console.log("LinkedinLog: Storing token key/secret in localStorage");
+                    //localStorage.setItem(localStoreKey, JSON.stringify(accessData));
+					self.authorized = true;
+					self.webView.close();
+				}, function(data) {
+					self.fireEvent('login', {
+						success: false,
+						error: "Failure to fetch access token, please try again.",
+						result: data
+					});
+					self.webView.close();
+				}
+			);
 	    }		
 	}
 	
@@ -138,20 +127,23 @@ exports.Linkedin = (function(global) {
 		    });
 		  }, 1);
 		} else {
-		    oauth.get('https://api.linkedin.com/uas/oauth/requestToken',
-			    function(data) {
-			        self.requestParams = data.text;
-			        console.log("LinkedinLog: requestParams: " + data.text);
-			        self.webView.showWebPage('https://www.linkedin.com/uas/oauth/authorize?'+data.text, 
+			this.oauthClient.fetchRequestToken(
+				function(requestParams){
+					var authorizeUrl = self.authorizeUrl + requestParams;
+					//self.webView.url = authorizeUrl;
+			        self.webView.showWebPage(authorizeUrl, 
 			                { showLocationBar : false });   
-			        self.webView.onLocationChange = function(loc){self.onLocationChange(loc);};	                 
-			    },
-			    function(data) { 
-			        alert('Error : No Authorization'); 
-			        console.log("LinkedinLog: 2 Error " + data.text); 
-			    }
-		    );
-
+			        self.webView.onLocationChange = function(loc){self.onLocationChange(loc);};	   
+				},
+				function(data){
+					self.fireEvent('login', {
+						success: false,
+						error: 'Failure to fetch access token, please try again.',
+						result: data
+					});
+					console.log("LinkedinLog: 2 Error " + data.text); 
+				}
+			);
 		}
 	};
 	

@@ -17,6 +17,7 @@ exports.Flickr = (function(global) {
 	    self.consumerSecret = options.consumerSecret;
 	    self.accessTokenKey = options.accessTokenKey;
 	    self.accessTokenSecret = options.accessTokenSecret;
+	    self.authorizeUrl = 'http://m.flickr.com/services/oauth/authorize';
 	    self.authorized = false;
 	    self.requestParams;
 	    self.listeners = {};
@@ -27,6 +28,7 @@ exports.Flickr = (function(global) {
 			self.webView = ChildBrowser.install();
 		}
 		
+		options.requestTokenUrl = options.requestTokenUrl || 'http://www.flickr.com/services/oauth/request_token';
 	    options.callbackUrl = options.callbackUrl || "https://www.facebook.com/connect/login_success.html/";
 	    self.callbackUrl = options.callbackUrl;
 	    self.oauthClient = OAuth(options);
@@ -73,46 +75,35 @@ exports.Flickr = (function(global) {
 	        }
 	        
             // Exchange request token for access token
-            oauth.get('http://www.flickr.com/services/oauth/access_token?oauth_verifier='+verifier+'&'+self.requestParams,
-                    function(data) {               
-                        var accessParams = {};
-                        var qvars_tmp = data.text.split('&');
-                        for (var i = 0; i < qvars_tmp.length; i++) {
-                            var y = qvars_tmp[i].split('=');
-                            accessParams[y[0]] = decodeURIComponent(y[1]);
-                        }
-                        console.log('FlickrLog: ' + accessParams.oauth_token + ' : ' + accessParams.oauth_token_secret);
-                        //$('#oauthStatus').html('<span style="color:green;">Success!</span>');
-                        //$('#stage-auth').hide();
-                        //$('#stage-data').show();
-                        oauth.setAccessToken([accessParams.oauth_token, accessParams.oauth_token_secret]);
-                        
-                        // Save access token/key in localStorage
-                        var accessData = {};
-                        accessData.accessTokenKey = accessParams.oauth_token;
-                        accessData.accessTokenSecret = accessParams.oauth_token_secret;
-                        console.log("FlickrLog: Storing token key/secret in localStorage");
-                        //localStorage.setItem(localStoreKey, JSON.stringify(accessData));
-                        self.authorized = true;
-			            self.fireEvent('login', {
-			              success: true,
-			              error: false,
-			              accessTokenKey: accessParams.oauth_token,
-			              accessTokenSecret: accessParams.oauth_token_secret
-			            });                                        
-                        self.webView.close();
-                },
-                function(data) { 
-                    self.authorized = false;
-                    console.log("FlickrLog: 1 Error " + data.text); 
-		            self.fireEvent('login', {
-		              success: false,
-		              error: data.text,
-		              result: data
-		            });
-		            self.webView.close();
-                }
-            );
+    		oauth.setVerifier(verifier.oauth_verifier);
+			oauth.accessTokenUrl = 'http://www.flickr.com/services/oauth/access_token';
+
+			oauth.fetchAccessToken(function(data){
+				var token = oauth.parseTokenRequest(data, data.responseHeaders['Content-Type'] || undefined);
+				oauth.setAccessToken([ token.oauth_token, token.oauth_token_secret ]);
+				console.log('FlickrLog: ' + token.oauth_token + ' : ' + token.oauth_token_secret);
+                // Save access token/key in localStorage
+                var accessData = {};
+                accessData.accessTokenKey = token.oauth_token;
+                accessData.accessTokenSecret = token.oauth_token_secret;
+                console.log("FlickrLog: Storing token key/secret in localStorage");
+                //localStorage.setItem(localStoreKey, JSON.stringify(accessData));
+				self.fireEvent('login', {
+					success: true,
+					error: false,
+					accessTokenKey: oauth.getAccessTokenKey(),
+					accessTokenSecret: oauth.getAccessTokenSecret()
+				});
+				self.authorized = true;
+				self.webView.close();
+			}, function(data){
+				self.fireEvent('login', {
+					success: false,
+					error: 'Failure to fetch access token, please try again.',
+					result: data
+				});
+				self.webView.close();
+			});
 	    }		
 	}
 	
@@ -138,20 +129,19 @@ exports.Flickr = (function(global) {
 		    });
 		  }, 1);
 		} else {
-		    oauth.get('http://www.flickr.com/services/oauth/request_token',
-			    function(data) {
-			        self.requestParams = data.text;
-			        console.log("FlickrLog: requestParams: " + data.text);
-			        self.webView.showWebPage('http://m.flickr.com/services/oauth/authorize?'+data.text, 
-			                { showLocationBar : false });    
-			        self.webView.onLocationChange = function(loc){self.onLocationChange(loc);};	                
-			    },
-			    function(data) { 
-			        alert('Error : No Authorization'); 
-			        console.log("FlickrLog: 2 Error " + data.text); 
-			    }
-		    );
-
+				this.oauthClient.fetchRequestToken(function(requestParams){
+				console.log("FlickrLog: requestParams: " + data.text);
+				var authorizeUrl = self.authorizeUrl + requestParams;		       
+		        self.webView.showWebPage(authorizeUrl, 
+		                { showLocationBar : false });    
+		        self.webView.onLocationChange = function(loc){self.onLocationChange(loc);};	  
+			}, function(data) {
+				self.fireEvent('login', {
+					success: false,
+					error: 'Failure to fetch access token, please try again.',
+					result: data
+				});
+			});
 		}
 	};
 	
