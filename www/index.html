@@ -68,17 +68,39 @@
 	
 		<div data-role="header">
 			<h1>CastrolSocialAccelerator</h1>
+			<a href="#nogo" data-role="button" data-rel="back">Settings</a>
 		</div><!-- /header -->
 	
 		<div data-role="content">	
 			<div data-role="controlgroup">
-				<a href="#nogo" data-role="button" id="takePhoto">Take Photo</a>
-				<a href="#nogo" data-role="button" data-rel="back">Settings</a>
+				<a href="#nogo" data-role="button" id="tweet">Tweet</a>			
 			</div>
             <span id="textcount"></span>
             <textarea id="tweettextarea" rows="2" cols="30"></textarea>
 		</div><!-- /content -->
-	
+		
+		<div data-role="page" data-theme="b" id="page-dialog-confirm">
+		  <div data-role="header">
+		      <h1>Confirm User</h1>
+		  </div>
+		  <div data-role="content" data-theme="c">
+		      <div id="dialog-confirm-text"></div>
+		      <a data-role="button" id="confirm-user" data-theme="b">Continue</a>       
+		      <a data-role="button" id="cancel-user" data-theme="c">Cancel</a>    
+		  </div>	
+		</div> <!-- /page-dialog-confirm -->
+      
+		<div data-role="page" data-theme="b" id="page-dialog-tweet">
+		  <div data-role="header" data-theme="d">
+		      <h1>Confirm Tweet</h1>
+		  </div>
+		  <div data-role="content" data-theme="c">
+		      <div id="dialog-tweet-text"></div>
+		      <a data-role="button" id="confirm-tweet" data-theme="b">Tweet</a>       
+		      <a data-role="button" id="cancel-tweet" data-theme="c">Cancel</a>    
+		  </div>
+		</div> <!-- /page-dialog-tweet -->	
+		
 	</div><!-- /page -->
 
   </body>

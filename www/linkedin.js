@@ -156,32 +156,34 @@ exports.Linkedin = (function(global) {
    */
 	Linkedin.prototype.request = function(path, params, headers, httpVerb, callback) {
 		var self = this, oauth = this.oauthClient, url;
-		
+
 		if (path.match(/^https?:\/\/.+/i)) {
-		    url = path;
+			url = path;
 		} else {
-		    url = 'https://api.linkedin.com/' + path;
+			url = 'https://api.linkedin.com/' + path;
 		}
-		
+
+		params.access_token = this.accessTokenKey;
+
 		oauth.request({
-		  method: httpVerb,
-		  url: url,
-		  data: params,
-		  headers: headers,
-		  success: function(data) {
-		    callback.call(self, {
-		      success: true,
-		      error: false,
-		      result: data
-		    });
-		  },
-		  error: function(data) { 
-		    callback.call(self, {
-		      success: false,
-		      error: "Request failed",
-		      result: data
-		    });
-		  }
+			method: httpVerb,
+			url: url,
+			data: params,
+			headers: headers,
+			success: function(data){
+				callback.call(self, {
+					success: true,
+					error: false,
+					result: data
+				});
+			},
+			failure: function(data){
+				callback.call(self, {
+					success: false,
+					error: 'Request failed',
+					result: data
+				});
+			}
 		});
 	};
 	
